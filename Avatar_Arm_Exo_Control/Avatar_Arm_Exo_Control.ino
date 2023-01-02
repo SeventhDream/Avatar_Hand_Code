@@ -1,41 +1,20 @@
-/* FILE:    Avatar Arm Exoskeleton Control
-   DATE:    6/11/2022
-   VERSION: 1
-   AUTHOR:  Reuel Terezakis
-
-This code uses the HCPCA9685 library together with the PCA9685
-to control up to 11 servos in a linkage-based robot arm. The sketch will initialise the library putting it into 
-'servo mode' and then map the potentiometer voltage values from the exoskeleton controller to the position range of the servos.
-
-To use the module connect it to your Arduino as follows:
-
-PCA9685...........Uno/Nano
-GND...............GND
-OE................N/A
-SCL...............A5
-SDA...............A4
-VCC...............5V
-
-External 5V Power for the servo(s) can be supplied by the V+ and GND input of the 
-screw terminal block.
-
-PLEASE NOTE: Depending on your servo it is possible for this sketch to attempt 
-drive the servo beyond its end stops. If your servo is hitting its end stops then
-you should adjust the the min and max values in this sketch.
-
-You may copy, alter and reuse this code in any way you like, but please leave
-reference to HobbyComponents.com in your comments if you redistribute this code.
-This software may not be used directly for the purpose of selling products that
-directly compete with Hobby Components Ltd's own range of products.
-
-THIS SOFTWARE IS PROVIDED "AS IS". HOBBY COMPONENTS MAKES NO WARRANTIES, WHETHER
-EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ACCURACY OR LACK OF NEGLIGENCE.
-HOBBY COMPONENTS SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR ANY DAMAGES,
-INCLUDING, BUT NOT LIMITED TO, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES FOR ANY
-REASON WHATSOEVER.
+/*
+  Example for MCP3008 - Library for communicating with MCP3008 Analog to digital converter.
+  Created by Uros Petrevski, Nodesign.net 2013
+  Released into the public domain.
 */
 
+#include <MCP3008.h>
+
+
+// define pin connections
+#define CS_PIN 12
+#define CLOCK_PIN 9
+#define MOSI_PIN 11
+#define MISO_PIN 10
+
+// put pins inside MCP3008 constructor
+MCP3008 adc(CLOCK_PIN, MOSI_PIN, MISO_PIN, CS_PIN);
 
 /* Include the HCPCA9685 library */
 #include "HCPCA9685.h"
@@ -47,75 +26,85 @@ REASON WHATSOEVER.
 
 /* Create an instance of the library */
 HCPCA9685 HCPCA9685(I2CAdd);
-
-int potPin0 = 0;    
-int indexPos = 0;       
-
-int potPin1 = 1;    
-int middlePos = 0;       
-
-int potPin2 = 2;    
-int ringFinger = 0;    
-
-int potPin3 = 3;    
-int pinkyPos = 0;   
-
-int potPin4 = 4;    
-int thumbPos = 0;   
-
-int potPin5 = 5;    
-int palmPos = 0;   
-
-void setup()
-{
+int indexPos = 0;
+void setup() {
+ 
+ // open serial port
+ Serial.begin(9600);
   /* Initialise the library and set it to 'servo mode' */ 
   HCPCA9685.Init(SERVO_MODE);
 
   /* Wake the device up */
   HCPCA9685.Sleep(false);
-
-  pinMode(A0, INPUT);
-  pinMode(A1, INPUT);
-  pinMode(A2, INPUT);
-  pinMode(A3, INPUT);
-  pinMode(A4, OUTPUT);
-  pinMode(A5, OUTPUT);
-  pinMode(A6, OUTPUT);
-  pinMode(A7, OUTPUT);
-  pinMode(A8, OUTPUT);
-  pinMode(A9, OUTPUT);
-  pinMode(A10, OUTPUT);
-  Serial.begin(9600);
 }
 
 
-void loop() 
-{
-  unsigned int Pos;
 
-  indexPos = analogRead(A0); // Get Index finger potentiometer voltage reading.
-  indexPos = map(indexPos, 0, 1023, 400, 10); // Map potentiometer value to servo position range
-  HCPCA9685.Servo(0, Pos); // 
+void loop() {
   
-  middlePos = analogRead(A1);
-  middlePos = map(middlePos, 0, 1023, 400, 10);    
-  myservo4.write(middlePos*2); 
   
-  ringPos = analogRead(A2);
-  ringPos = map(ringPos, 0, 1023, 400, 10);     
-  myservo6.write(ringPos*2); 
+  int valElbow = adc.readADC(0); // read Chanel 0 from MCP3008 ADC
+  Serial.print("Elbow: ");
+  Serial.print(valElbow);
+  Serial.print(" - ");
+  valElbow = map(valElbow, 100, 510, 50, 430); // Map potentiometer value to servo position range
+  Serial.print(valElbow);
+  HCPCA9685.Servo(10, valElbow);
   
-  pinkyPos = analogRead(A3);
-  pinkyPos = map(pinkyPos, 0, 1023, 400, 10);      
-  myservo8.write(pinkyPos*2); 
+  int valShoulder = adc.readADC(1); // read Chanel 0 from MCP3008 ADC
+  Serial.print(" | Shoulder: ");
+  Serial.print(valShoulder);
+  Serial.print(" - ");
+  valShoulder = map(valShoulder, 0, 1023, 10, 300); // Map potentiometer value to servo position range
+  Serial.print(valShoulder);
+  HCPCA9685.Servo(12, valShoulder);
+
+  int valWrist = adc.readADC(2); // read Chanel 0 from MCP3008 ADC
+  Serial.print(" | Wrist: ");
+  Serial.print(valWrist);
+  Serial.print(" - ");
+  valWrist = map(valWrist, 0, 1023, 10, 300); // Map potentiometer value to servo position range
+  Serial.print(valWrist);
+  HCPCA9685.Servo(8, valWrist);
+
+    int valBicep = adc.readADC(3); // read Chanel 0 from MCP3008 ADC
+  Serial.print(" | Bicep: ");
+  Serial.print(valBicep);
+  Serial.print(" - ");
+  valBicep = map(valBicep, 500, 1023, 10, 300); // Map potentiometer value to servo position range
+  Serial.print(valBicep);
+  HCPCA9685.Servo(11, valBicep);
   
-  thumbPos = analogRead(A4);
-  thumbPos = map(thumbPos, 0, 1023, 400, 10);     
-  myservo10.write(thumbPos*2); 
+  int valShoulderRot = adc.readADC(4); // read Chanel 0 from MCP3008 ADC
+  Serial.print(" | ShoulderRot: ");
+  Serial.print(valShoulderRot);
+  Serial.print(" - ");
+  valShoulderRot = map(valShoulderRot, 500, 1023, 10, 300); // Map potentiometer value to servo position range
+  Serial.println(valShoulderRot);
+  HCPCA9685.Servo(9, valShoulderRot);
+
+  // int val2 = adc.readADC(2); // read Chanel 0 from MCP3008 ADC
+  // Serial.print(val2);
+  // val2 = map(val2, 0, 1023, 450, 10); // Map potentiometer value to servo position range
+  // HCPCA9685.Servo(10, val2);
+
+  // int val3 = adc.readADC(3); // read Chanel 0 from MCP3008 ADC
+  // Serial.println(val3);
+  // val3 = map(val3, 0, 1023, 450, 10); // Map potentiometer value to servo position range
+  // HCPCA9685.Servo(11, val3);
+
+
+
+
   
-  palmPos = analogRead(A5);
-  palmPos = map(palmPos, 0, 1023, 400, 10);     
-  myservo12.write(palmPos*2); 
+  // iterate thru all channels
+  /*
+  for (int i=0; i<8; i++) {
+   int val = adc.readADC(i);
+   Serial.print(val);
+   Serial.print("\t");
+   }
+   Serial.println("");
+  */
   
-  delay(20); // Loop frequency: 50Hz
 }
