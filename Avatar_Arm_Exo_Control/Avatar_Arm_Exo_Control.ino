@@ -55,7 +55,7 @@ void loop() {
   Serial.print(" | Shoulder: ");
   Serial.print(valShoulder);
   Serial.print(" - ");
-  valShoulder = map(valShoulder, 0, 1023, 10, 300); // Map potentiometer value to servo position range
+  valShoulder = map(valShoulder, 500, 300, 10, 400); // Map potentiometer value to servo position range
   Serial.print(valShoulder);
   HCPCA9685.Servo(12, valShoulder);
 
@@ -63,7 +63,7 @@ void loop() {
   Serial.print(" | Wrist: ");
   Serial.print(valWrist);
   Serial.print(" - ");
-  valWrist = map(valWrist, 0, 1023, 10, 300); // Map potentiometer value to servo position range
+  valWrist = map(valWrist, 230, 730, 10, 300); // Map potentiometer value to servo position range
   Serial.print(valWrist);
   HCPCA9685.Servo(8, valWrist);
 
@@ -75,13 +75,13 @@ void loop() {
   Serial.print(valBicep);
   HCPCA9685.Servo(11, valBicep);
   
-  int valShoulderRot = adc.readADC(4); // read Chanel 0 from MCP3008 ADC
-  Serial.print(" | ShoulderRot: ");
-  Serial.print(valShoulderRot);
+  int valShoulderHRot = adc.readADC(4); // read Chanel 0 from MCP3008 ADC
+  Serial.print(" | ShoulderHRot: ");
+  Serial.print(valShoulderHRot);
   Serial.print(" - ");
-  valShoulderRot = map(valShoulderRot, 500, 1023, 10, 300); // Map potentiometer value to servo position range
-  Serial.println(valShoulderRot);
-  HCPCA9685.Servo(9, valShoulderRot);
+  valShoulderHRot = map(valShoulderHRot, 500, 1023, 10, 300); // Map potentiometer value to servo position range
+  Serial.println(valShoulderHRot);
+  HCPCA9685.Servo(9, valShoulderHRot);
 
   // int val2 = adc.readADC(2); // read Chanel 0 from MCP3008 ADC
   // Serial.print(val2);
